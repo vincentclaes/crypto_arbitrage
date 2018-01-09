@@ -16,7 +16,10 @@ engine = None
 isMockMode = True if not args.production else False
 
 if args.mode == 'triangular':
-    from engines.triangular_arbitrage import CryptoEngineTriArbitrage
+    if config["triangular"]["exchange"] == 'coinigy':
+        from engines.multi_platform_triangular_arbitrage import CryptoEngineTriArbitrage
+    else:
+        from engines.triangular_arbitrage import CryptoEngineTriArbitrage
     engine = CryptoEngineTriArbitrage(config['triangular'], isMockMode)
 elif args.mode == 'exchange':
     from engines.exchange_arbitrage import CryptoEngineExArbitrage
