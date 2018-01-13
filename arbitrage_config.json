@@ -1,13 +1,11 @@
 {
     "triangular": {
-        "exchange": "bitfinex",
-        "keyFile": "keys/bitfinex.key",
-        "tickerPairA": "NEO-BTC",
-        "tickerPairB": "NEO-ETH",
-        "tickerPairC": "ETH-BTC",
-        "tickerA": "BTC",
-        "tickerB": "NEO",
-        "tickerC": "ETH"
+        "exchange": "coinigy",
+        "exchange_name":["Bitfinex"],
+        "exchange_code": ["BITF"],
+
+        "auth_id": "246812",
+        "keyFile": "keys/coinigy.key"
     },
     "exchange": {
         "exchangeA": {
