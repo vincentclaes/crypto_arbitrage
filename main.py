@@ -1,7 +1,7 @@
 import argparse
 import json
 
-configFile = 'arbitrage_config.json'
+configFile = 'arbitrage_config_bitfinex.json'
 
 f = open(configFile)    
 config = json.load(f)

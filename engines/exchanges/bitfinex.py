@@ -18,7 +18,7 @@ class ExchangeEngine(ExchangeEngineBase):
     def __init__(self):
         self.API_URL = 'https://api.bitfinex.com'
         self.apiVersion = 'v1'
-        self.sleepTime = 5
+        self.sleepTime = 7
         self.feeRatio = 0.002
         self.async = True
         
@@ -107,17 +107,21 @@ class ExchangeEngine(ExchangeEngineBase):
         return self._send_request('book/{0}'.format(ticker), 'GET', {}, self.hook_orderBook)
     
     def hook_orderBook(self, r, *r_args, **r_kwargs):
-        json = r.json()
+        json_ = r.json()
         r.parsed = {
                     'bid':  {
-                             'price': float(json['bids'][0]['price']),
-                             'amount': float(json['bids'][0]['amount'])
+                             'price': float(json_['bids'][0]['price']),
+                             'amount': float(json_['bids'][0]['amount'])
                             },
                     'ask':  {
-                             'price': float(json['asks'][0]['price']),
-                             'amount': float(json['asks'][0]['amount'])
+                             'price': float(json_['asks'][0]['price']),
+                             'amount': float(json_['asks'][0]['amount'])
                             }
                     }
+
+        print r.url
+        print json.dumps(r.parsed, indent=4, sort_keys=True)
+        print
     
     '''
         return in r.parsed
@@ -166,30 +170,3 @@ class ExchangeEngine(ExchangeEngineBase):
             r.parsed[factory_kwargs['ticker']] = json['last_price']
 
         return res_hook
-
-    ''' bitfinex doesn't provide external withdrawal api
-    def withdraw(self, amount, address):
-        data = {'withdraw_type': 'OMG', 'walletselected': 'exchange', 'amount': amount, 'address': address}
-        return self._send_request('account_infos', data)
-    '''
-    
-   
-    
-if __name__ == "__main__":
-    engine = ExchangeEngine()
-    engine.load_key('../.keys/bitfinexkey')
-    #print engine.get_balance()
-
-    for res in grequests.map([engine.cancel_order('525113932211')]):
-        print res.json()
-        pass    
-
-#     for res in grequests.map([engine.place_order('OMGETH', 'bid', 5, 0.02)]):
-#         print res.json()
-#         pass
-#        
-    #print engine.get_open_order()
-    #engine.place_order('OMGETH', 'bid', 40, 0.01)
-    #print engine.get_ticker_orderBook('OMGETH')
-    #print engine.place_order('OMGETH', 'bid', 850, 0.02)
-    #print engine.cancel_order(446915287)

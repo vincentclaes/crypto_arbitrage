@@ -164,7 +164,7 @@ class ExchangeEngine(ExchangeEngineBase):
     '''
 
     def get_ticker_lastPrice(self,exchange_code, exchange_markets, ticker):
-        return self._send_request('ticker', 'POST', json.dumps({'exchange_code': str(exchange_code), 'exchange_market': exchange_markets}),
+        return self._send_request('ticker', 'POST', json.dumps({'exchange_code': str(exchange_code), 'exchange_market': '{}/USD'.format(ticker)}),
                                   [self.hook_lastPrice(ticker=ticker)])
 
     def hook_lastPrice(self, *factory_args, **factory_kwargs):
