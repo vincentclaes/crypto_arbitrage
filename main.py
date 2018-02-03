@@ -1,7 +1,10 @@
 import argparse
 import json
+import sys
+import os
 
-configFile = 'arbitrage_config_bitfinex.json'
+dir_path = os.path.dirname(os.path.realpath(__file__))
+configFile = os.path.join(dir_path, 'arbitrage_config_bitfinex.json')
 
 f = open(configFile)    
 config = json.load(f)

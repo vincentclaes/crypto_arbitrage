@@ -67,7 +67,3 @@ class TestCheckBidAskRoute(unittest.TestCase):
 
         picked_no_route_route = CryptoEngineTriArbitrage.pick_route(1, 1, prices)
         self.assertEqual(picked_no_route_route, 0)
-
-
-if __name__ == '__main__':
-    unittest.main()

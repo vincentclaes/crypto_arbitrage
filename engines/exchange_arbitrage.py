@@ -199,24 +199,3 @@ class CryptoEngineExArbitrage(object):
 
     def run(self):
         self.start_engine()
-
-if __name__ == '__main__':
-    exParams = {
-        'exchangeA': {
-            'exchange': 'bittrex',
-            'keyFile': '../keys/bittrex.key',
-            'tickerPair': 'BTC-ETH',
-            'tickerA': 'BTC',
-            'tickerB': 'ETH'        
-        },
-        'exchangeB': {
-            'exchange': 'bitstamp',
-            'keyFile': '../keys/bitstamp.key',
-            'tickerPair': 'ethbtc',
-            'tickerA': 'btc',
-            'tickerB': 'eth'         
-        }
-    }
-    engine = CryptoEngineExArbitrage(exParams, True)
-    #engine = CryptoEngineExArbitrage(exParams)
-    engine.run()

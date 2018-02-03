@@ -21,6 +21,7 @@ class ExchangeEngine(ExchangeEngineBase):
         self.sleepTime = 7
         self.feeRatio = 0.002
         self.async = True
+        self.last_prices = {}
         
     def _send_request(self, command, httpMethod, params={}, hook=None):          
         command = '/{0}/{1}'.format(self.apiVersion, command)
@@ -118,11 +119,9 @@ class ExchangeEngine(ExchangeEngineBase):
                              'amount': float(json_['asks'][0]['amount'])
                             }
                     }
-
         print r.url
-        print json.dumps(r.parsed, indent=4, sort_keys=True)
-        print
-    
+        print json.dumps(r.parsed)
+
     '''
         return in r.parsed
         [
@@ -132,7 +131,7 @@ class ExchangeEngine(ExchangeEngineBase):
         ]
     '''        
     def get_open_order(self):
-        return self._send_request('orders', 'POST', {}, self.hook_openOrder) 
+        return self._send_request('orders', 'POST', {"request":"/v1/orders"}, self.hook_openOrder)
        
     def hook_openOrder(self, r, *r_args, **r_kwargs):
         json = r.json()
@@ -147,6 +146,7 @@ class ExchangeEngine(ExchangeEngineBase):
         price: 0.2
     '''
     def place_order(self, ticker, action, amount, price):
+        ticker = ticker.replace('-', '').lower()
         action = 'buy' if action == 'bid' else 'sell'
         data = {'symbol': ticker, 'side': action, 'amount': str(amount), 'price': str(price), 'exchange': 'bitfinex', 'type': 'exchange limit'}
         return self._send_request('order/new', 'POST', data)

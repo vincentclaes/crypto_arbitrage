@@ -7,7 +7,8 @@
         "tickerPairC": "NEO-BTC",
         "tickerA": "BTC",
         "tickerB": "ETH",
-        "tickerC": "NEO"
+        "tickerC": "NEO",
+        "minimum_amount": [0.02, 0.2, 0.2]
     },
     "exchange": {
         "exchangeA": {
