@@ -340,6 +340,8 @@ class CryptoEngineTriArbitrage(object):
         :param status:
         :return:
         """
+
+
         maxUSDT = []
         for index, tickerIndex in enumerate(['tickerA', 'tickerB', 'tickerC']):
             # 1: 'bid', -1: 'ask'
@@ -363,22 +365,26 @@ class CryptoEngineTriArbitrage(object):
                     bid_ask = -1
             bid_ask = 'bid' if bid_ask == 1 else 'ask'
 
-            # take the minimum amount of currencey (compare amount in order book with the amount in your balance)
-            # --> take the minimum of these two
-            maxBalance = min(orderBookRes[index].parsed[bid_ask]['amount'],
-                             self.engine.balance[self.exchange[tickerIndex]])
+            # take the minimum of the amount in order book with the amount in your balance
+            orderbook_amount = orderBookRes[index].parsed[bid_ask]['amount']
+            balance_amount = self.engine.balance[self.exchange[tickerIndex]]
+            maxBalance = min(orderbook_amount, balance_amount)
 
             # we find the maximum amount of USD we can spend on the orders.
-            # this means we take the minimum USD of all the maxbalanaces across our currencies.
+            # this means we take the minimum USD of all the maxbalances across our currencies.
             # fixme - the fee ratio can be removed here because it is taken into account futrher down the line
             USDT = maxBalance * lastPrices[index] * (1 - self.engine.feeRatio)
             if not maxUSDT or USDT < maxUSDT:
                 maxUSDT = USDT
 
+        # # FIXME - we should refactor how prices are handled
+        # # BTC-ETH is expressed in BTC
+        # # NEO-ETH is expressed in ETH
+        # # NEO-BTC is expressed in BTC
+        # lastPrices = [lastPrices[0], lastPrices[1], lastPrices[0]]
         # calculate the amount of coins needed for each coin in the list
         maxAmounts = []
         for index, tickerIndex in enumerate(['tickerA', 'tickerB', 'tickerC']):
-            # todo - May need to handle scientific notation
             maxAmounts.append(maxUSDT / lastPrices[index])
 
         return maxAmounts
@@ -458,6 +464,7 @@ class CryptoEngineTriArbitrage(object):
 
     @staticmethod
     def pick_route(bidRoute_result, askRoute_result, lastPrices):
+        # todo - verify calculations
         # Max amount for bid route & ask routes can be different and so less profit
         if bidRoute_result > 1 or \
                 (bidRoute_result > 1 and askRoute_result > 1 and (bidRoute_result - 1) * lastPrices[0] > (
