@@ -35,7 +35,7 @@ class ExchangeEngine(ExchangeEngineBase):
             
             secret = self.key['private']
             params['request'] = command
-            params['nonce'] = str(long(1000000*time.time()))
+            params['nonce'] = str(long(100000000*time.time()))
             
             j = json.dumps(params)
             message = base64.standard_b64encode(j.encode('utf8'))
@@ -80,7 +80,7 @@ class ExchangeEngine(ExchangeEngineBase):
             r.parsed = {}
             
             if factory_kwargs['tickers']:
-                json = filter(lambda ticker: ticker['currency'].upper() in factory_kwargs['tickers'], json)
+                json = filter(lambda ticker: ticker['currency'].upper() in factory_kwargs['tickers'] and ticker['type'] == 'exchange', json)
                 
             for ticker in json:
                 r.parsed[ticker['currency'].upper()] = float(ticker['amount'])

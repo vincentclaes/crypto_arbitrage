@@ -116,7 +116,6 @@ class CryptoEngineTriArbitrage(object):
         self.engine.openOrders = []
         self.hasOpenOrder = False
 
-
     def check_balance(self):
         rs = [self.engine.get_balance([
             self.exchange['tickerA'],
@@ -275,14 +274,13 @@ class CryptoEngineTriArbitrage(object):
 
             # deprecated - bidrouteprofit is equal to bidroute result because bidroute and askroute
             # are expressed in the same unit
-            #bidRoute_profit = (bidRoute_result - 1) * main_currency_price * maxAmounts[0]
+            # bidRoute_profit = (bidRoute_result - 1) * main_currency_price * maxAmounts[0]
 
             bidRoute_profit = bidRoute_result - fee
             print 'bidroute profit : {}'.format(bidRoute_profit)
 
-
             # deprecated - same reason as for bidroute profit
-            #askRoute_profit = (askRoute_result - 1) * main_currency_price * maxAmounts[0]
+            # askRoute_profit = (askRoute_result - 1) * main_currency_price * maxAmounts[0]
             askRoute_profit = askRoute_result - fee
 
             print 'askroute profit : {}'.format(askRoute_profit)
@@ -362,7 +360,8 @@ class CryptoEngineTriArbitrage(object):
     def calculate_max_amount(self, last_prices, orderBookRes, status):
         """
         get the maximum amount of tokens we can purchase for each token.
-        1) for each coin we look for the minimum amount of tokens we can buy. We take minimum of balance and latest order in the orderbook.
+        1) for each coin we look for the minimum amount of tokens we can buy. We take minimum
+        of balance and latest order in the orderbook.
         2)
         :param lastPrices:
         :param orderBookRes:
@@ -370,8 +369,7 @@ class CryptoEngineTriArbitrage(object):
         :return:
         """
 
-
-        ticker_pairs = ['tickerPairA','tickerPairB','tickerPairC']
+        ticker_pairs = ['tickerPairA', 'tickerPairB', 'tickerPairC']
         affected_balance_list = []
         maxUSDT = []
         for index, tickerIndex in enumerate(ticker_pairs):
@@ -426,7 +424,6 @@ class CryptoEngineTriArbitrage(object):
         ticker_pair_amount, ticker_pair_price = self.exchange[cross_pair].split('-')
         return ticker_pair_amount, ticker_pair_price
 
-
     def _get_max_balance(self, order_book, bid_ask, affected_balance):
         # take the minimum of the amount in order book with the amount in your balance
         orderbook_amount = order_book.parsed[bid_ask]['amount']
@@ -437,7 +434,6 @@ class CryptoEngineTriArbitrage(object):
         # get minimum of both amounts
         maxBalance = min(orderbook_amount, balance_amount)
         return maxBalance
-
 
     def place_order(self, orderInfo):
         print ''
