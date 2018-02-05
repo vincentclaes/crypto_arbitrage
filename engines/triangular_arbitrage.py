@@ -255,7 +255,7 @@ class CryptoEngineTriArbitrage(object):
 
         print 'ask route result : {}'.format(askRoute_result)
 
-        status = self.pick_route(bidRoute_result, askRoute_result, last_prices)
+        status = self.pick_route(bidRoute_result, askRoute_result)
 
         if status > 0:
             maxAmounts = self.getMaxAmount(last_prices, orderbook, status)
@@ -342,6 +342,8 @@ class CryptoEngineTriArbitrage(object):
         """
 
 
+        ticker_pairs = ['tickerPairA','tickerPairB','tickerPairC']
+        affected_balance_list = []
         maxUSDT = []
         for index, tickerIndex in enumerate(['tickerA', 'tickerB', 'tickerC']):
             # 1: 'bid', -1: 'ask'
@@ -364,16 +366,22 @@ class CryptoEngineTriArbitrage(object):
                 else:
                     bid_ask = -1
             bid_ask = 'bid' if bid_ask == 1 else 'ask'
+            ticker_pair = ticker_pairs[index]
+            ticker_pair_amount, ticker_pair_price = self._split_cross_pair(ticker_pair)
 
-            # take the minimum of the amount in order book with the amount in your balance
-            orderbook_amount = orderBookRes[index].parsed[bid_ask]['amount']
-            balance_amount = self.engine.balance[self.exchange[tickerIndex]]
-            maxBalance = min(orderbook_amount, balance_amount)
+            # depending on bid or ask the balance that gets charged is different
+            affected_balance = ticker_pair_price if bid_ask == 'ask' else ticker_pair_amount
+            affected_balance_list.append(affected_balance)
+            maxBalance = self._get_max_balance(orderBookRes[index], bid_ask, affected_balance)
+            # # take the minimum of the amount in order book with the amount in your balance
+            # orderbook_amount = orderBookRes[index].parsed[bid_ask]['amount']
+            # balance_amount = self.engine.balance[self.exchange[tickerIndex]]
+            # maxBalance = min(orderbook_amount, balance_amount)
 
             # we find the maximum amount of USD we can spend on the orders.
             # this means we take the minimum USD of all the maxbalances across our currencies.
             # fixme - the fee ratio can be removed here because it is taken into account futrher down the line
-            USDT = maxBalance * lastPrices[index] * (1 - self.engine.feeRatio)
+            USDT = maxBalance * self.engine.last_prices[affected_balance] * (1 - self.engine.feeRatio)
             if not maxUSDT or USDT < maxUSDT:
                 maxUSDT = USDT
 
@@ -384,10 +392,28 @@ class CryptoEngineTriArbitrage(object):
         # lastPrices = [lastPrices[0], lastPrices[1], lastPrices[0]]
         # calculate the amount of coins needed for each coin in the list
         maxAmounts = []
-        for index, tickerIndex in enumerate(['tickerA', 'tickerB', 'tickerC']):
-            maxAmounts.append(maxUSDT / lastPrices[index])
+        #for index, tickerIndex in enumerate(['tickerA', 'tickerB', 'tickerC']):
+        for index, balance in enumerate(affected_balance_list):
+            maxAmounts.append(maxUSDT / self.engine.last_prices[balance])
 
         return maxAmounts
+
+    def _split_cross_pair(self, cross_pair):
+        ticker_pair_amount, ticker_pair_price = self.exchange[cross_pair].split('-')
+        return ticker_pair_amount, ticker_pair_price
+
+
+    def _get_max_balance(self, order_book, bid_ask, affected_balance):
+        # take the minimum of the amount in order book with the amount in your balance
+        orderbook_amount = order_book.parsed[bid_ask]['amount']
+
+        # depending on bid or ask the balance that gets charged is different
+        balance_amount = self.engine.balance[affected_balance]
+
+        # get minimum of both amounts
+        maxBalance = min(orderbook_amount, balance_amount)
+        return maxBalance
+
 
     def place_order(self, orderInfo):
         print ''
@@ -462,13 +488,17 @@ class CryptoEngineTriArbitrage(object):
                  * responses[0].parsed['bid']['price']
         return result
 
-    @staticmethod
-    def pick_route(bidRoute_result, askRoute_result, lastPrices):
+    def pick_route(self, bidRoute_result, askRoute_result):
         # todo - verify calculations
         # Max amount for bid route & ask routes can be different and so less profit
+
+        # final currency price (always BTC i guess) is the price of the coin that we start and end with while performing
+        # arbitrage
+        final_currency_price = self.engine[self.exchange['tickerA']]
+
         if bidRoute_result > 1 or \
-                (bidRoute_result > 1 and askRoute_result > 1 and (bidRoute_result - 1) * lastPrices[0] > (
-                            askRoute_result - 1) * lastPrices[1]):
+                (bidRoute_result > 1 and askRoute_result > 1 and (bidRoute_result - 1) * final_currency_price > (
+                            askRoute_result - 1) * final_currency_price):
             status = 1  # bid route
         elif askRoute_result > 1:
             status = 2  # ask route
