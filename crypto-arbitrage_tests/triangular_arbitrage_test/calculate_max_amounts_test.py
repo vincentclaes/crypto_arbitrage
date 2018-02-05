@@ -1,7 +1,5 @@
 import unittest
 
-from mock import MagicMock
-
 from engines.triangular_arbitrage import CryptoEngineTriArbitrage
 
 
@@ -10,7 +8,7 @@ class TestGetMaxAmountOfCoinsForArbitrage(unittest.TestCase):
     def setUpClass(cls):
         config = {
             "exchange": "bitfinex",
-            "keyFile": "keys/bitfinex.key_sample",
+            "keyFile": "../keys/bitfinex.key_sample",
             "tickerPairA": "ETH-BTC",
             "tickerPairB": "NEO-ETH",
             "tickerPairC": "NEO-BTC",
@@ -34,13 +32,12 @@ class TestGetMaxAmountOfCoinsForArbitrage(unittest.TestCase):
             order_book_list.append(orderbook_object)
 
         current_balance = {u'NEO': 2.20618882, u'ETH': 0.27563599, u'BTC': 0.05124354}
-        prices = [9333.2, 986.66, 129.3]
         last_prices = {'BTC': 9333.2, 'ETH': 986.66, 'NEO': 129.3}
         engine = CryptoEngineTriArbitrage(config, True)
         engine.engine.last_prices = last_prices
         engine.engine.balance = current_balance
         engine.engine.exchange = config
-        cls.max_amounts_result = engine.getMaxAmount(prices, order_book_list, 1)
+        cls.max_amounts_result = engine.calculate_max_amount(last_prices, order_book_list, 1)
 
     def test_verify_max_amounts(self):
         self.assertListEqual(self.max_amounts_result,
