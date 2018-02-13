@@ -2,7 +2,7 @@ import unittest
 from engines.triangular_arbitrage import CryptoEngineTriArbitrage
 
 
-class CalculateFeeTest(unittest.TestCase):
+class CalculateProfitTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         config = {
@@ -21,4 +21,4 @@ class CalculateFeeTest(unittest.TestCase):
         cls.engine = CryptoEngineTriArbitrage(config, True)
 
     def test_verify_calculate_fee(self):
-        self.assertEqual(self.engine._calculate_fee(1, 0.002),  0.002)
+        self.assertEqual(self.engine._calculate_profit(1, 0.002),  0.998)

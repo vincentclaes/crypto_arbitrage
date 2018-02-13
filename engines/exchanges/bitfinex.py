@@ -18,12 +18,11 @@ class ExchangeEngine(ExchangeEngineBase):
     def __init__(self):
         self.API_URL = 'https://api.bitfinex.com'
         self.apiVersion = 'v1'
-        self.sleepTime = 7
+        self.sleepTime = 8
         self.feeRatio = 0.002
-        self.async = True
         self.last_prices = {}
         
-    def _send_request(self, command, httpMethod, params={}, hook=None):          
+    def _send_request(self, command, httpMethod, params={}, hook=None, async=True):
         command = '/{0}/{1}'.format(self.apiVersion, command)
 
         url = self.API_URL + command
@@ -35,7 +34,8 @@ class ExchangeEngine(ExchangeEngineBase):
             
             secret = self.key['private']
             params['request'] = command
-            params['nonce'] = str(long(100000000*time.time()))
+            params['nonce'] = self._get_nonce()
+            print '******** NONCE {}'.format(params['nonce'])
             
             j = json.dumps(params)
             message = base64.standard_b64encode(j.encode('utf8'))
@@ -54,16 +54,19 @@ class ExchangeEngine(ExchangeEngineBase):
             args['hooks'] = dict(response=hook)
             
         req = R(url, **args)
-        if self.async:
+        if async:
             return req
         else:
             response = grequests.map([req])[0].json()
             
-            if 'error' in response:
-                print response
+            print response
             return response    
     
-    
+    def _get_nonce(self):
+        time.sleep(0.01)
+        nonce = str(long(100000000 * time.time()))
+        return nonce
+
     '''
         return in r.parsed, showing all and required tickers
         {
@@ -117,11 +120,15 @@ class ExchangeEngine(ExchangeEngineBase):
                     'ask':  {
                              'price': float(json_['asks'][0]['price']),
                              'amount': float(json_['asks'][0]['amount'])
-                            }
+                            },
+                    'ticker_pair': self._parse_url_to_ticker_pair(r.url)
                     }
         print r.url
         print json.dumps(r.parsed)
 
+    def _parse_url_to_ticker_pair(self, url):
+        ticker_pair = url.rsplit('/', 1)[1].upper()
+        return ticker_pair[0:3] + '-' + ticker_pair[3:6]
     '''
         return in r.parsed
         [
@@ -149,7 +156,7 @@ class ExchangeEngine(ExchangeEngineBase):
         ticker = ticker.replace('-', '').lower()
         action = 'buy' if action == 'bid' else 'sell'
         data = {'symbol': ticker, 'side': action, 'amount': str(amount), 'price': str(price), 'exchange': 'bitfinex', 'type': 'exchange limit'}
-        return self._send_request('order/new', 'POST', data)
+        return self._send_request('order/new', 'POST', data, async=False)
   
     def cancel_order(self, orderID):
         return self._send_request('order/cancel', 'POST', {'order_id': long(orderID)})    
@@ -165,6 +172,8 @@ class ExchangeEngine(ExchangeEngineBase):
 
     def hook_lastPrice(self, *factory_args, **factory_kwargs):
         def res_hook(r, *r_args, **r_kwargs):
+            if r.status_code >= 300:
+                print 'status code: {} : {}'.format(r.status_code, r.content)
             json = r.json()
             r.parsed = {}
             r.parsed[factory_kwargs['ticker']] = json['last_price']

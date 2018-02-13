@@ -8,7 +8,7 @@
         "tickerA": "BTC",
         "tickerB": "ETH",
         "tickerC": "NEO",
-        "minimum_amount": [0.02, 0.2, 0.2],
+        "minimum_amount": {"ETH-BTC": 0.02, "NEO-ETH":0.2, "NEO-BTC": 0.2},
         "tickerPair_price_unit": ["BTC", "ETH", "BTC"]
     },
     "exchange": {

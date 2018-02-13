@@ -10,8 +10,6 @@ class IntegrationBidRouteTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
 
-        # print 'BTC > ETH > NEO > BTC'
-        # print '(1 * {}) / {} * {}'.format('ask', 'ask', 'bid')
 
         eth_btc = {
             "ask": {
