@@ -7,9 +7,11 @@ from engines.triangular_arbitrage import CryptoEngineTriArbitrage
 
 
 class IntegrationBidRouteTest(unittest.TestCase):
+    """
+    this tests has open orders and calculates arbitrage possibilities.
+    """
     @classmethod
     def setUpClass(cls):
-
 
         eth_btc = {
             "ask": {
@@ -44,20 +46,12 @@ class IntegrationBidRouteTest(unittest.TestCase):
             }
         }
 
-        prices = [13838.0, 1307.5, 188.3]
         m1 = MagicMock()
         m1.parsed = eth_btc
         m2 = MagicMock()
         m2.parsed = neo_eth
         m3 = MagicMock()
         m3.parsed = neo_btc
-
-        # from engines.triangular_arbitrage import CryptoEngineTriArbitrage
-
-        # engine = CryptoEngineTriArbitrage(config['triangular'], isMockMode)
-
-        bid_result = CryptoEngineTriArbitrage.bid_route([m1, m2, m3])
-        ask_result = CryptoEngineTriArbitrage.ask_route([m1, m2, m3])
 
         config = {
             "exchange": "bitfinex",
@@ -81,11 +75,12 @@ class IntegrationBidRouteTest(unittest.TestCase):
                 with mock.patch.object(CryptoEngineTriArbitrage, 'get_last_prices') as m_last_price:
                     with mock.patch.object(CryptoEngineTriArbitrage, 'get_orderbook') as m_orderbook:
                         with mock.patch.object(CryptoEngineTriArbitrage, 'check_openOrder') as m_open_order:
-                            m_balance.return_value = {u'NEO': 10, u'ETH': 1, u'BTC': 1}
-                            m_last_price.return_value = {'BTC': 10000, 'ETH': 1000, 'NEO': 100}
-                            engine.engine.last_prices = {'BTC': 10000, 'ETH': 1000, 'NEO': 100}
-                            m_orderbook.return_value = [m1, m2, m3]
-                            engine._run()
+                            with mock.patch.object(CryptoEngineTriArbitrage, 'place_order') as m_place_order:
+                                m_balance.return_value = {u'NEO': 10, u'ETH': 1, u'BTC': 1}
+                                m_last_price.return_value = {'BTC': 10000, 'ETH': 1000, 'NEO': 100}
+                                engine.engine.last_prices = {'BTC': 10000, 'ETH': 1000, 'NEO': 100}
+                                m_orderbook.return_value = [m1, m2, m3]
+                                engine._run()
         except Exception as e:
             cls.exception = e
 

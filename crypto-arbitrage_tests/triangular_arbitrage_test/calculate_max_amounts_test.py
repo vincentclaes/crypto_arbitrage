@@ -89,7 +89,7 @@ class TestGetMaxAmountOfCoinsForArbitrageAskRouteTest(unittest.TestCase):
         engine.engine.last_prices = last_prices
         engine.engine.balance = current_balance
         engine.engine.exchange = config
-        cls.max_amounts_result = engine.calculate_max_amount(last_prices, order_book_list, 2)
+        cls.max_amounts_result, maxusdt = engine.calculate_max_amount(last_prices, order_book_list, 2)
 
     def test_verify_max_amounts(self):
         self.assertListEqual(self.max_amounts_result,
@@ -160,7 +160,7 @@ class TestGetMaxAmountOfCoinsForArbitrageBidRouteTest(unittest.TestCase):
         engine.engine.last_prices = last_prices
         engine.engine.balance = current_balance
         engine.engine.exchange = config
-        cls.max_amounts_result = engine.calculate_max_amount(last_prices, order_book_list, 1)
+        cls.max_amounts_result, maxusdt = engine.calculate_max_amount(last_prices, order_book_list, 1)
 
     def test_verify_max_amounts(self):
         self.assertListEqual(self.max_amounts_result,[0.2726185721119911, 2.0862042513769894, 2.085461082236911])

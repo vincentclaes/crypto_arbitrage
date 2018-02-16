@@ -12,6 +12,7 @@ class CryptoEngineTriArbitrage(object):
         self.exchange = exchange
         self.mock = mock
         self.minProfitBTC = 0.0005
+        self.minProfitUSDT = 1
         self.hasOpenOrder = True  # always assume there are open orders first
         self.openOrderCheckCount = 0
 
@@ -83,25 +84,27 @@ class CryptoEngineTriArbitrage(object):
         return sum(wallet_value)
 
     def check_openOrder(self):
-        if self.openOrderCheckCount >= 5:
-            self.cancel_allOrders()
-        else:
-            print 'checking open orders...'
-            rs = [self.engine.get_open_order()]
-            responses = self.send_request(rs)
-
-            if not responses[0]:
-                print responses
-                return False
-
-            if responses[0].parsed:
-                self.engine.openOrders = responses[0].parsed
-                print self.engine.openOrders
-                self.openOrderCheckCount += 1
-            else:
-                self.hasOpenOrder = False
-                print 'no open orders'
-                print 'starting to check order book...'
+        # if self.openOrderCheckCount >= 5:
+        #     self.cancel_allOrders()
+        # else:
+        # print 'checking open orders...'
+        # rs = [self.engine.get_open_order()]
+        # responses = self.send_request(rs)
+        #
+        # if not responses[0]:
+        #     print responses
+        #     return False
+        #
+        # if responses[0].parsed:
+        #     self.engine.openOrders = responses[0].parsed
+        #     print self.engine.openOrders
+        #     self.openOrderCheckCount += 1
+        # else:
+        #     self.hasOpenOrder = False
+        #     print 'no open orders'
+        #     print 'starting to check order book...'
+        self.hasOpenOrder = False
+        return True
 
     def cancel_allOrders(self):
         print 'cancelling all open orders...'
@@ -142,6 +145,7 @@ class CryptoEngineTriArbitrage(object):
         for res in self.send_request(rs):
             price = float(next(res.parsed.itervalues()))
             self.engine.last_prices[next(res.parsed.iterkeys())] = price
+        print 'last prices {}'.format(self.engine.last_prices)
         return self.engine.last_prices
 
     def get_orderbook(self):
@@ -265,7 +269,7 @@ class CryptoEngineTriArbitrage(object):
         status = self.pick_route(bidRoute_result, askRoute_result, main_currency_price)
 
         if status > 0:
-            maxAmounts = self.calculate_max_amount(last_prices, orderbook, status)
+            maxAmounts, maxUSDT = self.calculate_max_amount(last_prices, orderbook, status)
             if maxAmounts is False:
                 # we need to have the minimum amount to place an order
                 return {'status': 0}
@@ -279,7 +283,7 @@ class CryptoEngineTriArbitrage(object):
             ask_route_profit = self._calculate_profit(askRoute_result, self.engine.feeRatio)
             print 'askroute profit : {}'.format(ask_route_profit)
 
-            if status == 1 and bid_route_profit > self.minProfitBTC:
+            if status == 1 and bid_route_profit*maxUSDT > self.minProfitUSDT:
                 print strftime('%Y%m%d%H%M%S') + ' Bid Route: Result - {0} Profit - {1} Fee - {2}'.format(
                     bidRoute_result, bid_route_profit, self._calculate_fee(bidRoute_result, self.engine.feeRatio))
                 orderInfo = [
@@ -304,7 +308,7 @@ class CryptoEngineTriArbitrage(object):
                 ]
 
                 return {'status': 1, "orderInfo": orderInfo}
-            elif status == 2 and ask_route_profit > self.minProfitBTC:
+            elif status == 2 and ask_route_profit*maxUSDT > self.minProfitUSDT:
                 print strftime('%Y%m%d%H%M%S') + ' Ask Route: Result - {0} Profit - {1} Fee - {2}'.format(
                     askRoute_result, ask_route_profit, self._calculate_fee(ask_route_profit, self.engine.feeRatio))
                 orderInfo = [
@@ -331,7 +335,9 @@ class CryptoEngineTriArbitrage(object):
         return {'status': 0}
 
     def _calculate_profit(self, result, exchange_fee):
-        return result * (1 - exchange_fee)
+        result_minus_fees = result - self._calculate_fee(result, exchange_fee)
+        profit = result_minus_fees - 1
+        return profit
 
     def _calculate_fee(self, result, exchange_fee):
         return result * exchange_fee
@@ -357,7 +363,7 @@ class CryptoEngineTriArbitrage(object):
 
         ticker_pairs = ['tickerPairA', 'tickerPairB', 'tickerPairC']
         affected_balance_list = []
-        maxUSDT = []
+        maxUSDT = None
         minimum_allowed_amount = []
         order_per_ticker_pair = []
         for index, tickerIndex in enumerate(ticker_pairs):
@@ -407,8 +413,8 @@ class CryptoEngineTriArbitrage(object):
             # _, ticker_pair_price = self._split_cross_pair(ticker_pair)
             #maxAmounts.append(maxUSDT / last_prices[ticker_pair_price])
         if all([item1 > item2 for item1, item2 in zip(maxAmounts, minimum_allowed_amount)]):
-            return maxAmounts
-        return False
+            return maxAmounts, maxUSDT
+        return False, maxUSDT
 
     def _get_max_amounts_for_tickerpair(self, max_usdt, ticker_pair, last_prices, order):
         """
