@@ -283,7 +283,7 @@ class CryptoEngineTriArbitrage(object):
             ask_route_profit = self._calculate_profit(askRoute_result, self.engine.feeRatio)
             print 'askroute profit : {}'.format(ask_route_profit)
 
-            if status == 1 and bid_route_profit*maxUSDT > self.minProfitUSDT:
+            if status == 1 and bid_route_profit > self.minProfitBTC:
                 print strftime('%Y%m%d%H%M%S') + ' Bid Route: Result - {0} Profit - {1} Fee - {2}'.format(
                     bidRoute_result, bid_route_profit, self._calculate_fee(bidRoute_result, self.engine.feeRatio))
                 orderInfo = [
@@ -308,7 +308,7 @@ class CryptoEngineTriArbitrage(object):
                 ]
 
                 return {'status': 1, "orderInfo": orderInfo}
-            elif status == 2 and ask_route_profit*maxUSDT > self.minProfitUSDT:
+            elif status == 2 and ask_route_profit > self.minProfitBTC:
                 print strftime('%Y%m%d%H%M%S') + ' Ask Route: Result - {0} Profit - {1} Fee - {2}'.format(
                     askRoute_result, ask_route_profit, self._calculate_fee(ask_route_profit, self.engine.feeRatio))
                 orderInfo = [
@@ -335,12 +335,12 @@ class CryptoEngineTriArbitrage(object):
         return {'status': 0}
 
     def _calculate_profit(self, result, exchange_fee):
-        result_minus_fees = result - self._calculate_fee(result, exchange_fee)
+        result_minus_fees = self._calculate_fee(result, exchange_fee)
         profit = result_minus_fees - 1
         return profit
 
     def _calculate_fee(self, result, exchange_fee):
-        return result * exchange_fee
+        return result * (1-exchange_fee)**3
 
     def _get_main_currency(self, ticker_name='tickerA'):
         return self.exchange[ticker_name]
@@ -409,11 +409,12 @@ class CryptoEngineTriArbitrage(object):
         for index, ticker_pair in enumerate(ticker_pairs):
             _max_amount = self._get_max_amounts_for_tickerpair(maxUSDT, ticker_pair, last_prices, order_per_ticker_pair[index])
             maxAmounts.append(_max_amount)
-            # minimum_allowed_amount.append(self.exchange.get('minimum_amount').get(self.exchange[ticker_pair]))
+            minimum_allowed_amount.append(self.exchange.get('minimum_amount').get(self.exchange[ticker_pair]))
             # _, ticker_pair_price = self._split_cross_pair(ticker_pair)
             #maxAmounts.append(maxUSDT / last_prices[ticker_pair_price])
         if all([item1 > item2 for item1, item2 in zip(maxAmounts, minimum_allowed_amount)]):
             return maxAmounts, maxUSDT
+        print 'tradable amounts are too small ...'
         return False, maxUSDT
 
     def _get_max_amounts_for_tickerpair(self, max_usdt, ticker_pair, last_prices, order):

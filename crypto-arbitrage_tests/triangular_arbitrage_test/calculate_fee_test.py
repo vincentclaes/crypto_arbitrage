@@ -21,4 +21,4 @@ class CalculateFeeTest(unittest.TestCase):
         cls.engine = CryptoEngineTriArbitrage(config, True)
 
     def test_verify_calculate_fee(self):
-        self.assertEqual(self.engine._calculate_fee(1, 0.002),  0.002)
+        self.assertEqual(self.engine._calculate_fee(1, 0.002),  0.994011992)

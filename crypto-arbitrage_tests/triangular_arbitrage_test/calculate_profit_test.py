@@ -21,7 +21,7 @@ class CalculateProfitTest(unittest.TestCase):
         cls.engine = CryptoEngineTriArbitrage(config, True)
 
     def test_verify_calculate_fee_we_make_loss(self):
-        self.assertEqual(self.engine._calculate_profit(1, 0.002),  -0.0020000000000000018)
+        self.assertEqual(self.engine._calculate_profit(1, 0.002),  -0.005988007999999989)
 
     def test_verify_calculate_fee_we_make_profit(self):
-        self.assertEqual(self.engine._calculate_profit(1.1, 0.002),  0.09780000000000011)
+        self.assertEqual(self.engine._calculate_profit(1.1, 0.002), 0.09341319120000002)
