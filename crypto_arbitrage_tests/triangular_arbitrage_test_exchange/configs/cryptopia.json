@@ -1,0 +1,17 @@
+{
+    "GBYTE": {
+        "exchange": "bitfinex",
+        "keyFile": "../keys/cryptopia.key_sample",
+        "minimum_amount": {
+            "AID-BTC": 0.2,
+            "AID-ETH": 0.2,
+            "ETH-BTC": 0.02
+        },
+        "tickerA": "BTC",
+        "tickerB": "LTC",
+        "tickerC": "GBYTE",
+        "tickerPairA": "ETH/BTC",
+        "tickerPairB": "GBYTE/LTC",
+        "tickerPairC": "GBYTE/BTC"
+    }
+}

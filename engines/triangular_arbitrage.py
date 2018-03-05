@@ -431,8 +431,7 @@ class CryptoEngineTriArbitrage(object):
         return max_usdt / (order.get('price') * last_prices.get(ticker_pair_price))
 
     def _split_cross_pair(self, cross_pair):
-        ticker_pair_amount, ticker_pair_price = self.exchange[cross_pair].split('-')
-        return ticker_pair_amount, ticker_pair_price
+        return self.engine.split_cross_pair(self.exchange[cross_pair])
 
     def _get_max_balance(self, order_book, bid_ask, affected_balance):
         # take the minimum of the amount in order book with the amount in your balance

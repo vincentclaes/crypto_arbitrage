@@ -16,15 +16,13 @@ $30,000,000.00 or more traded                      0.000%        0.100%
 from mod_imports import *
 class ExchangeEngine(ExchangeEngineBase):
     def __init__(self):
-        self.API_URL = 'https://api.bitfinex.com'
+        self.API_URL = 'https://www.cryptopia.co.nz/api/'
         self.apiVersion = 'v1'
         self.sleepTime = 8
         self.feeRatio = 0.002
         self.last_prices = {}
         
     def _send_request(self, command, httpMethod, params={}, hook=None, async=True):
-        command = '/{0}/{1}'.format(self.apiVersion, command)
-
         url = self.API_URL + command
         headers = {}
         if httpMethod == "GET":
@@ -168,18 +166,18 @@ class ExchangeEngine(ExchangeEngineBase):
         }
     '''
     def get_ticker_lastPrice(self, ticker):
-         return self._send_request('pubticker/{0}usd'.format(ticker.lower()), 'GET', {}, [self.hook_lastPrice(ticker=ticker)])
+         return self._send_request('GetMarket/{}_USDT'.format(ticker.lower()), 'GET', {}, [self.hook_lastPrice(ticker=ticker)])
+         # return self._send_request('pubticker/{0}usd'.format(ticker.lower()), 'GET', {}, [self.hook_lastPrice(ticker=ticker)])
 
     def hook_lastPrice(self, *factory_args, **factory_kwargs):
         def res_hook(r, *r_args, **r_kwargs):
             if r.status_code >= 300:
                 print 'status code: {} : {}'.format(r.status_code, r.content)
-            json = r.json()
+            json_ = r.json()
             r.parsed = {}
-            r.parsed[factory_kwargs['ticker']] = json['last_price']
+            r.parsed[factory_kwargs['ticker']] = json_.get('Data').get('LastPrice')
 
         return res_hook
 
     def split_cross_pair(self, cross_pair):
-        ticker_pair_amount, ticker_pair_price =cross_pair.split('-')
-        return ticker_pair_amount, ticker_pair_price
+        return cross_pair[:3], cross_pair[3:]

@@ -10,14 +10,14 @@ TEST_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 class BaseArbitragePossibilitiesForExchange(unittest.TestCase):
     @classmethod
-    def run_for_coin_on_exchange(cls, coin, exchange):
+    def run_for_coin_on_exchange(cls, exchange, coin, coin2, coin3):
         configs = BaseArbitragePossibilitiesForExchange.read_config(os.path.join(TEST_ROOT, 'configs'), exchange)
         config_for_coin = configs.get(coin)
         engine = CryptoEngineTriArbitrage(config_for_coin, True)
         engine.hasOpenOrder = False
         with mock.patch.object(CryptoEngineTriArbitrage, 'check_balance') as m_balance:
             with mock.patch.object(CryptoEngineTriArbitrage, 'place_order') as m_place_order:
-                m_balance.return_value = {coin: 1000, u'ETH': 1, u'BTC': 1}
+                m_balance.return_value = {coin: 1000, coin2: 1, coin3: 1}
                 engine.run()
 
     @staticmethod
@@ -35,7 +35,7 @@ class ArbitragePossibilitiesForBitfinexTest(BaseArbitragePossibilitiesForExchang
         cls.exception = None
 
         try:
-            BaseArbitragePossibilitiesForExchange.run_for_coin_on_exchange("EOS", "kraken")
+            BaseArbitragePossibilitiesForExchange.run_for_coin_on_exchange("GBYTE", "cryptopia")
         except Exception as e:
             cls.exception = e
 

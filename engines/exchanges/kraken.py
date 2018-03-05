@@ -159,3 +159,6 @@ class ExchangeEngine(ExchangeEngineBase):
             r.parsed = {}
             r.parsed[factory_kwargs['ticker']] = last_tradeprice
         return res_hook
+
+    def split_cross_pair(self, cross_pair):
+        return cross_pair[:3], cross_pair[3:]
