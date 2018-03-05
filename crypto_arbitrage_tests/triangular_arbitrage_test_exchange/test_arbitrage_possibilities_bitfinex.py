@@ -35,22 +35,7 @@ class ArbitragePossibilitiesForBitfinexTest(BaseArbitragePossibilitiesForExchang
         cls.exception = None
 
         try:
-            BaseArbitragePossibilitiesForExchange.run_for_coin_on_exchange("AVT", "bitfinex")
-        except Exception as e:
-            cls.exception = e
-
-    def test_did_not_throw_exception(self):
-        self.assertIsNone(self.exception)
-
-
-class ArbitragePossibilitiesForBittrexTest(BaseArbitragePossibilitiesForExchange):
-    @classmethod
-    def setUpClass(cls):
-
-        cls.exception = None
-
-        try:
-            BaseArbitragePossibilitiesForExchange.run_for_coin_on_exchange("AVT", "bittrex")
+            BaseArbitragePossibilitiesForExchange.run_for_coin_on_exchange("EOS", "kraken")
         except Exception as e:
             cls.exception = e
 

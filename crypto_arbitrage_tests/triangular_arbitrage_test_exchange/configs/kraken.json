@@ -1,0 +1,16 @@
+{"EOS": {
+        "exchange": "kraken",
+        "keyFile": "../keys/kraken.key_sample",
+        "minimum_amount": {
+            "AID-BTC": 0.2,
+            "AID-ETH": 0.2,
+            "ETH-BTC": 0.02
+        },
+        "tickerA": "XBT",
+        "tickerB": "ETH",
+        "tickerC": "EOS",
+        "tickerPairA": "ETHXBT",
+        "tickerPairB": "EOSETH",
+        "tickerPairC": "EOSXBT"
+    }
+}
