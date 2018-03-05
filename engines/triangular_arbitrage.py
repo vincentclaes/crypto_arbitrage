@@ -450,13 +450,14 @@ class CryptoEngineTriArbitrage(object):
         print 'ORDER INFO'
         print json.dumps(orderInfo)
         rs = []
-        for order in orderInfo:
-            rs.append(self.engine.place_order(
-                order['tickerPair'],
-                order['action'],
-                order['amount'],
-                order['price'])
-            )
+        if not self.mock:
+            for order in orderInfo:
+                rs.append(self.engine.place_order(
+                    order['tickerPair'],
+                    order['action'],
+                    order['amount'],
+                    order['price'])
+                )
 
         # if not self.mock:
         #     responses = self.send_request(rs)
