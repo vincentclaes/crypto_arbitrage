@@ -1,14 +1,12 @@
-# from crypto_arbitrage_tests.triangular_arbitrage_test_exchange.base_arbitrage_for_exchange import \
-#     BaseArbitragePossibilitiesForExchange
 import json
 import os
 import unittest
-
 import mock
 
 from engines.triangular_arbitrage import CryptoEngineTriArbitrage
 
 TEST_ROOT = os.path.dirname(os.path.realpath(__file__))
+
 
 class BaseArbitragePossibilitiesForExchange(unittest.TestCase):
     @classmethod
